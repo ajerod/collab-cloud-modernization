@@ -1,7 +1,8 @@
 package com.collab.workspace_service.config;
 
 import com.collab.workspace_service.adapter.out.messaging.NoOpDomainEventPublisherAdapter;
-import com.collab.workspace_service.adapter.out.persistence.InMemoryWorkspaceRepositoryAdapter;
+import com.collab.workspace_service.adapter.out.persistence.JpaWorkspaceRepositoryAdapter;
+import com.collab.workspace_service.adapter.out.persistence.WorkspaceJpaRepository;
 import com.collab.workspace_service.application.port.in.CreateWorkspaceUseCase;
 import com.collab.workspace_service.application.port.out.DomainEventPublisherPort;
 import com.collab.workspace_service.application.port.out.WorkspaceRepositoryPort;
@@ -13,8 +14,10 @@ import org.springframework.context.annotation.Configuration;
 public class BeanConfiguration {
 
     @Bean
-    public WorkspaceRepositoryPort workspaceRepositoryPort() {
-        return new InMemoryWorkspaceRepositoryAdapter();
+    public WorkspaceRepositoryPort workspaceRepositoryPort(
+            WorkspaceJpaRepository workspaceJpaRepository
+    ) {
+        return new JpaWorkspaceRepositoryAdapter(workspaceJpaRepository);
     }
 
     @Bean
