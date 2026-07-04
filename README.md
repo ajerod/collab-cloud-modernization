@@ -34,6 +34,16 @@ The initial system is based on a legacy monolith. The target architecture progre
 - `notification-service`: consumes events and simulates notifications.
 - `legacy-collab-monolith`: represents the legacy application to migrate progressively.
 
+## Internal Service Architecture
+
+Each microservice follows a pragmatic Hexagonal Architecture:
+
+- `domain`: pure business model and domain events
+- `application`: use cases and ports
+- `adapter/in`: REST controllers and input adapters
+- `adapter/out`: persistence, messaging and external system adapters
+- `config`: technical configuration
+
 ## Project Roadmap
 
 1. Initialize repository and documentation.
