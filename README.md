@@ -43,6 +43,36 @@ Each microservice follows a pragmatic Hexagonal Architecture:
 - `adapter/in`: REST controllers and input adapters
 - `adapter/out`: persistence, messaging and external system adapters
 - `config`: technical configuration
+- 
+# Hexagonal Architecture
+
+Each microservice follows a pragmatic Hexagonal Architecture.
+
+The goal is to isolate business logic from technical concerns such as REST, persistence, messaging and external systems.
+
+## Layers
+
+- `domain`: pure business model and domain events.
+- `application`: use cases and ports.
+- `adapter/in`: inbound adapters such as REST controllers.
+- `adapter/out`: outbound adapters such as database repositories and Kafka publishers.
+- `config`: Spring technical configuration.
+
+## Dependency Rule
+
+Dependencies must always point inward.
+
+Adapters depend on the application layer.
+The application layer depends on the domain layer.
+The domain layer does not depend on Spring, JPA, Kafka or any infrastructure framework.
+
+## Benefits
+
+- Better testability.
+- Clear separation of concerns.
+- Easier legacy migration.
+- Easier replacement of technical adapters.
+- Reduced coupling with frameworks.
 
 ## Project Roadmap
 
