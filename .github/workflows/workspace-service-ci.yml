@@ -1,0 +1,40 @@
+name: Workspace Service CI
+
+on:
+  push:
+    branches:
+      - "**"
+    paths:
+      - "services/workspace-service/**"
+      - ".github/workflows/workspace-service-ci.yml"
+
+  pull_request:
+    paths:
+      - "services/workspace-service/**"
+      - ".github/workflows/workspace-service-ci.yml"
+
+jobs:
+  build-and-test:
+    name: Build and test workspace-service
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: services/workspace-service
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+
+      - name: Make Maven wrapper executable
+        run: chmod +x mvnw
+
+      - name: Run tests
+        run: ./mvnw clean test
