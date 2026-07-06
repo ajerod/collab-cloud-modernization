@@ -2,9 +2,12 @@ package com.collab.workspace_service.adapter.in.web.facade;
 
 import com.collab.workspace_service.adapter.in.web.mapper.WorkspaceApiMapper;
 import com.collab.workspace_service.adapter.in.web.request.CreateWorkspaceRequest;
+import com.collab.workspace_service.adapter.in.web.response.WorkspaceListResponse;
 import com.collab.workspace_service.adapter.in.web.response.WorkspaceResponse;
+import com.collab.workspace_service.application.model.PagedResult;
 import com.collab.workspace_service.application.port.in.CreateWorkspaceUseCase;
 import com.collab.workspace_service.application.port.in.GetWorkspaceUseCase;
+import com.collab.workspace_service.application.port.in.ListWorkspacesUseCase;
 import com.collab.workspace_service.domain.model.Workspace;
 import org.springframework.stereotype.Component;
 
@@ -15,11 +18,13 @@ public class WorkspaceFacade {
 
     private final CreateWorkspaceUseCase createWorkspaceUseCase;
     private final GetWorkspaceUseCase getWorkspaceUseCase;
+    private final ListWorkspacesUseCase listWorkspacesUseCase;
     private final WorkspaceApiMapper workspaceApiMapper;
 
     public WorkspaceFacade(
             CreateWorkspaceUseCase createWorkspaceUseCase,
             GetWorkspaceUseCase getWorkspaceUseCase,
+            ListWorkspacesUseCase listWorkspacesUseCase,
             WorkspaceApiMapper workspaceApiMapper
     ) {
         this.createWorkspaceUseCase = Objects.requireNonNull(
@@ -29,6 +34,10 @@ public class WorkspaceFacade {
         this.getWorkspaceUseCase = Objects.requireNonNull(
                 getWorkspaceUseCase,
                 "Get workspace use case must not be null"
+        );
+        this.listWorkspacesUseCase = Objects.requireNonNull(
+                listWorkspacesUseCase,
+                "List workspaces use case must not be null"
         );
         this.workspaceApiMapper = Objects.requireNonNull(
                 workspaceApiMapper,
@@ -50,5 +59,13 @@ public class WorkspaceFacade {
         );
 
         return workspaceApiMapper.toResponse(workspace);
+    }
+
+    public WorkspaceListResponse listWorkspaces(int page, int size) {
+        PagedResult<Workspace> result = listWorkspacesUseCase.listWorkspaces(
+                workspaceApiMapper.toListQuery(page, size)
+        );
+
+        return workspaceApiMapper.toListResponse(result);
     }
 }

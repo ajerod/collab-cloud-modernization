@@ -1,12 +1,14 @@
 package com.collab.workspace_service.application.service;
 
 import com.collab.workspace_service.application.exception.WorkspaceNotFoundException;
+import com.collab.workspace_service.application.model.PagedResult;
 import com.collab.workspace_service.application.port.in.GetWorkspaceQuery;
 import com.collab.workspace_service.application.port.out.WorkspaceRepositoryPort;
 import com.collab.workspace_service.domain.model.Workspace;
 import com.collab.workspace_service.domain.model.WorkspaceId;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -101,6 +103,17 @@ class GetWorkspaceServiceTest {
         public Optional<Workspace> findById(WorkspaceId workspaceId) {
             this.findByIdCalled = true;
             return Optional.ofNullable(workspace);
+        }
+
+        @Override
+        public PagedResult<Workspace> findAll(int page, int size) {
+            return new PagedResult<>(
+                    List.of(),
+                    page,
+                    size,
+                    0,
+                    0
+            );
         }
     }
 }

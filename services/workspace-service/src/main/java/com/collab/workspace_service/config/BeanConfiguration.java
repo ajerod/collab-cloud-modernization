@@ -5,10 +5,12 @@ import com.collab.workspace_service.adapter.out.persistence.JpaWorkspaceReposito
 import com.collab.workspace_service.adapter.out.persistence.WorkspaceJpaRepository;
 import com.collab.workspace_service.application.port.in.CreateWorkspaceUseCase;
 import com.collab.workspace_service.application.port.in.GetWorkspaceUseCase;
+import com.collab.workspace_service.application.port.in.ListWorkspacesUseCase;
 import com.collab.workspace_service.application.port.out.DomainEventPublisherPort;
 import com.collab.workspace_service.application.port.out.WorkspaceRepositoryPort;
 import com.collab.workspace_service.application.service.CreateWorkspaceService;
 import com.collab.workspace_service.application.service.GetWorkspaceService;
+import com.collab.workspace_service.application.service.ListWorkspacesService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -43,5 +45,12 @@ public class BeanConfiguration {
             WorkspaceRepositoryPort workspaceRepositoryPort
     ) {
         return new GetWorkspaceService(workspaceRepositoryPort);
+    }
+
+    @Bean
+    public ListWorkspacesUseCase listWorkspacesUseCase(
+            WorkspaceRepositoryPort workspaceRepositoryPort
+    ) {
+        return new ListWorkspacesService(workspaceRepositoryPort);
     }
 }

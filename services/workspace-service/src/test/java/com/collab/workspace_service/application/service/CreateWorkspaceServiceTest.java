@@ -1,5 +1,6 @@
 package com.collab.workspace_service.application.service;
 
+import com.collab.workspace_service.application.model.PagedResult;
 import com.collab.workspace_service.application.port.in.CreateWorkspaceCommand;
 import com.collab.workspace_service.application.port.out.DomainEventPublisherPort;
 import com.collab.workspace_service.application.port.out.WorkspaceRepositoryPort;
@@ -9,6 +10,7 @@ import com.collab.workspace_service.domain.model.Workspace;
 import com.collab.workspace_service.domain.model.WorkspaceId;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -94,6 +96,17 @@ class CreateWorkspaceServiceTest {
         @Override
         public Optional<Workspace> findById(WorkspaceId workspaceId) {
             return Optional.empty();
+        }
+
+        @Override
+        public PagedResult<Workspace> findAll(int page, int size) {
+            return new PagedResult<>(
+                    List.of(),
+                    page,
+                    size,
+                    0,
+                    0
+            );
         }
     }
 

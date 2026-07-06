@@ -1,8 +1,12 @@
 package com.collab.workspace_service.adapter.out.persistence;
 
+import com.collab.workspace_service.application.model.PagedResult;
 import com.collab.workspace_service.application.port.out.WorkspaceRepositoryPort;
 import com.collab.workspace_service.domain.model.Workspace;
 import com.collab.workspace_service.domain.model.WorkspaceId;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -31,5 +35,27 @@ public class JpaWorkspaceRepositoryAdapter implements WorkspaceRepositoryPort {
         return workspaceJpaRepository
                 .findById(workspaceId.value())
                 .map(WorkspacePersistenceMapper::toDomain);
+    }
+
+    @Override
+    public PagedResult<Workspace> findAll(int page, int size) {
+        PageRequest pageRequest = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "createdAt")
+        );
+
+        Page<WorkspaceJpaEntity> result = workspaceJpaRepository.findAll(pageRequest);
+
+        return new PagedResult<>(
+                result.getContent()
+                        .stream()
+                        .map(WorkspacePersistenceMapper::toDomain)
+                        .toList(),
+                result.getNumber(),
+                result.getSize(),
+                result.getTotalElements(),
+                result.getTotalPages()
+        );
     }
 }

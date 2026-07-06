@@ -2,6 +2,7 @@ package com.collab.workspace_service.adapter.in.web.resource;
 
 import com.collab.workspace_service.adapter.in.web.facade.WorkspaceFacade;
 import com.collab.workspace_service.adapter.in.web.request.CreateWorkspaceRequest;
+import com.collab.workspace_service.adapter.in.web.response.WorkspaceListResponse;
 import com.collab.workspace_service.adapter.in.web.response.WorkspaceResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -34,6 +35,16 @@ public class WorkspaceResource {
             @PathVariable String workspaceId
     ) {
         WorkspaceResponse response = workspaceFacade.getWorkspace(workspaceId);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping
+    public ResponseEntity<WorkspaceListResponse> listWorkspaces(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        WorkspaceListResponse response = workspaceFacade.listWorkspaces(page, size);
 
         return ResponseEntity.ok(response);
     }
