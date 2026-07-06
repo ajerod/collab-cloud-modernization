@@ -1,6 +1,7 @@
 package com.collab.workspace_service.adapter.in.web;
 
 import com.collab.workspace_service.application.exception.WorkspaceNotFoundException;
+import com.collab.workspace_service.common.error.WorkspaceErrorCode;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -27,14 +28,27 @@ public class ApiExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ProblemDetail handleIllegalArgument(IllegalArgumentException exception) {
+        WorkspaceErrorCode errorCode = resolveBadRequestErrorCode(exception);
+
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.BAD_REQUEST,
                 exception.getMessage()
         );
-        problemDetail.setTitle("Invalid request");
-        problemDetail.setType(URI.create("https://collab-cloud-modernization/errors/invalid-request"));
+        problemDetail.setTitle(errorCode.defaultMessage());
+        problemDetail.setType(URI.create("https://collab-cloud-modernization/errors/" + errorCode.code()));
+        problemDetail.setProperty("errorCode", errorCode.code());
 
         return problemDetail;
+    }
+
+    private WorkspaceErrorCode resolveBadRequestErrorCode(IllegalArgumentException exception) {
+        String message = exception.getMessage();
+
+        if (message != null && message.toLowerCase().contains("page")) {
+            return WorkspaceErrorCode.INVALID_PAGINATION;
+        }
+
+        return WorkspaceErrorCode.INVALID_WORKSPACE_ID;
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

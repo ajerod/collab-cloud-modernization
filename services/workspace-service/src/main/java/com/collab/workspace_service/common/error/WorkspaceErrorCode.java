@@ -4,6 +4,7 @@ public enum WorkspaceErrorCode implements ErrorCode {
 
     WORKSPACE_NOT_FOUND("WORKSPACE_NOT_FOUND", "Workspace not found"),
     INVALID_WORKSPACE_ID("INVALID_WORKSPACE_ID", "Invalid workspace id"),
+    INVALID_PAGINATION("INVALID_PAGINATION", "Invalid pagination parameters"),
     VALIDATION_ERROR("VALIDATION_ERROR", "Validation error"),
     TECHNICAL_EXCEPTION("TECHNICAL_EXCEPTION", "Technical exception");
 
