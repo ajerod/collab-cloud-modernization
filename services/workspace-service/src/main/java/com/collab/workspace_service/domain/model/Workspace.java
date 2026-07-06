@@ -71,4 +71,20 @@ public class Workspace {
 
         return ownerId.trim();
     }
+
+    public WorkspaceId getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getOwnerId() {
+        return ownerId;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
 }
