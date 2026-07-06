@@ -2,6 +2,7 @@ package com.collab.workspace_service.adapter.in.web.resource;
 
 import com.collab.workspace_service.adapter.in.web.facade.WorkspaceFacade;
 import com.collab.workspace_service.adapter.in.web.request.CreateWorkspaceRequest;
+import com.collab.workspace_service.adapter.in.web.resource.doc.WorkspaceApiDoc;
 import com.collab.workspace_service.adapter.in.web.response.WorkspaceListResponse;
 import com.collab.workspace_service.adapter.in.web.response.WorkspaceResponse;
 import jakarta.validation.Valid;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/workspaces")
-public class WorkspaceResource {
+public class WorkspaceResource implements WorkspaceApiDoc {
 
     private final WorkspaceFacade workspaceFacade;
 
@@ -19,6 +20,7 @@ public class WorkspaceResource {
         this.workspaceFacade = workspaceFacade;
     }
 
+    @Override
     @PostMapping
     public ResponseEntity<WorkspaceResponse> createWorkspace(
             @Valid @RequestBody CreateWorkspaceRequest request
@@ -30,6 +32,7 @@ public class WorkspaceResource {
                 .body(response);
     }
 
+    @Override
     @GetMapping("/{workspaceId}")
     public ResponseEntity<WorkspaceResponse> getWorkspace(
             @PathVariable String workspaceId
@@ -39,6 +42,7 @@ public class WorkspaceResource {
         return ResponseEntity.ok(response);
     }
 
+    @Override
     @GetMapping
     public ResponseEntity<WorkspaceListResponse> listWorkspaces(
             @RequestParam(defaultValue = "0") int page,
