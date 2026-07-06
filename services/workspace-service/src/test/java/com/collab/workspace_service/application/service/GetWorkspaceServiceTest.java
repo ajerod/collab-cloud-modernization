@@ -69,7 +69,7 @@ class GetWorkspaceServiceTest {
 
         assertThrows(
                 IllegalArgumentException.class,
-                () -> service.getWorkspace(new GetWorkspaceQuery("invalid-id"))
+                () -> service.getWorkspace(new GetWorkspaceQuery("not-a-uuid"))
         );
     }
 

@@ -1,8 +1,14 @@
 package com.collab.workspace_service.application.exception;
 
-public class WorkspaceNotFoundException extends RuntimeException {
+import com.collab.workspace_service.common.error.WorkspaceErrorCode;
+import com.collab.workspace_service.common.exception.CollabException;
+
+public class WorkspaceNotFoundException extends CollabException {
 
     public WorkspaceNotFoundException(String workspaceId) {
-        super("Workspace not found with id: " + workspaceId);
+        super(
+                WorkspaceErrorCode.WORKSPACE_NOT_FOUND,
+                "Workspace not found with id: " + workspaceId
+        );
     }
 }
