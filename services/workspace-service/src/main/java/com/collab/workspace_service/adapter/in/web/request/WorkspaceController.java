@@ -4,6 +4,8 @@ import com.collab.workspace_service.adapter.in.web.request.CreateWorkspaceReques
 import com.collab.workspace_service.adapter.in.web.response.WorkspaceResponse;
 import com.collab.workspace_service.application.port.in.CreateWorkspaceCommand;
 import com.collab.workspace_service.application.port.in.CreateWorkspaceUseCase;
+import com.collab.workspace_service.application.port.in.GetWorkspaceQuery;
+import com.collab.workspace_service.application.port.in.GetWorkspaceUseCase;
 import com.collab.workspace_service.domain.model.Workspace;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -15,9 +17,11 @@ import org.springframework.web.bind.annotation.*;
 public class WorkspaceController {
 
     private final CreateWorkspaceUseCase createWorkspaceUseCase;
+    private final GetWorkspaceUseCase getWorkspaceUseCase;
 
-    public WorkspaceController(CreateWorkspaceUseCase createWorkspaceUseCase) {
+    public WorkspaceController(CreateWorkspaceUseCase createWorkspaceUseCase, GetWorkspaceUseCase getWorkspaceUseCase) {
         this.createWorkspaceUseCase = createWorkspaceUseCase;
+        this.getWorkspaceUseCase = getWorkspaceUseCase;
     }
 
     @PostMapping
@@ -35,4 +39,18 @@ public class WorkspaceController {
                 .status(HttpStatus.CREATED)
                 .body(WorkspaceResponse.from(workspace));
     }
+
+    @GetMapping("/{workspaceId}")
+    public ResponseEntity<WorkspaceResponse> getWorkspace(
+            @PathVariable String workspaceId
+    ) {
+        Workspace workspace = getWorkspaceUseCase.getWorkspace(
+                new GetWorkspaceQuery(workspaceId)
+        );
+
+        return ResponseEntity.ok(
+                WorkspaceResponse.from(workspace)
+        );
+    }
+
 }

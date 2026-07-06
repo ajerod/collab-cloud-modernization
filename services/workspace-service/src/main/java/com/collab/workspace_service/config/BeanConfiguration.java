@@ -4,9 +4,11 @@ import com.collab.workspace_service.adapter.out.messaging.NoOpDomainEventPublish
 import com.collab.workspace_service.adapter.out.persistence.JpaWorkspaceRepositoryAdapter;
 import com.collab.workspace_service.adapter.out.persistence.WorkspaceJpaRepository;
 import com.collab.workspace_service.application.port.in.CreateWorkspaceUseCase;
+import com.collab.workspace_service.application.port.in.GetWorkspaceUseCase;
 import com.collab.workspace_service.application.port.out.DomainEventPublisherPort;
 import com.collab.workspace_service.application.port.out.WorkspaceRepositoryPort;
 import com.collab.workspace_service.application.service.CreateWorkspaceService;
+import com.collab.workspace_service.application.service.GetWorkspaceService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -34,5 +36,12 @@ public class BeanConfiguration {
                 workspaceRepositoryPort,
                 domainEventPublisherPort
         );
+    }
+
+    @Bean
+    public GetWorkspaceUseCase getWorkspaceUseCase(
+            WorkspaceRepositoryPort workspaceRepositoryPort
+    ) {
+        return new GetWorkspaceService(workspaceRepositoryPort);
     }
 }
