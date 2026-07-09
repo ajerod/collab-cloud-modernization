@@ -6,10 +6,14 @@ import com.collab.workspace_service.application.port.in.GetWorkspaceUseCase;
 import com.collab.workspace_service.application.port.out.WorkspaceRepositoryPort;
 import com.collab.workspace_service.domain.model.Workspace;
 import com.collab.workspace_service.domain.model.WorkspaceId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
 public class GetWorkspaceService implements GetWorkspaceUseCase {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GetWorkspaceService.class);
 
     private final WorkspaceRepositoryPort workspaceRepositoryPort;
 
@@ -26,8 +30,16 @@ public class GetWorkspaceService implements GetWorkspaceUseCase {
 
         WorkspaceId workspaceId = WorkspaceId.from(query.workspaceId());
 
-        return workspaceRepositoryPort
-                .findById(workspaceId)
-                .orElseThrow(() -> new WorkspaceNotFoundException(query.workspaceId()));
+        LOGGER.info("Retrieving workspace: workspaceId={}", workspaceId);
+
+        return workspaceRepositoryPort.findById(workspaceId)
+                .map(workspace -> {
+                    LOGGER.info("Workspace retrieved successfully: workspaceId={}", workspace.id());
+                    return workspace;
+                })
+                .orElseThrow(() -> {
+                    LOGGER.info("Workspace not found: workspaceId={}", workspaceId);
+                    return new WorkspaceNotFoundException(workspaceId.toString());
+                });
     }
 }
