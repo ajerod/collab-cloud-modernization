@@ -28,6 +28,23 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      valkey:
+        condition: service_healthy
+
+  valkey:
+    image: valkey/valkey:8
+    container_name: collab-valkey
+    ports:
+      - "${VALKEY_PORT:-6379}:6379"
+    volumes:
+      - collab-valkey-data:/data
+    command: [ "valkey-server", "--appendonly", "yes" ]
+    healthcheck:
+      test: [ "CMD", "valkey-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   collab-postgres-data:
+  collab-valkey-data:

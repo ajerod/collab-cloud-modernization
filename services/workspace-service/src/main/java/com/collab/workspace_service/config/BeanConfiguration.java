@@ -1,5 +1,6 @@
 package com.collab.workspace_service.config;
 
+import com.collab.workspace_service.adapter.out.cache.CachedWorkspaceRepositoryAdapter;
 import com.collab.workspace_service.adapter.out.messaging.NoOpDomainEventPublisherAdapter;
 import com.collab.workspace_service.adapter.out.persistence.JpaWorkspaceRepositoryAdapter;
 import com.collab.workspace_service.adapter.out.persistence.WorkspaceJpaRepository;
@@ -11,6 +12,7 @@ import com.collab.workspace_service.application.port.out.WorkspaceRepositoryPort
 import com.collab.workspace_service.application.service.CreateWorkspaceService;
 import com.collab.workspace_service.application.service.GetWorkspaceService;
 import com.collab.workspace_service.application.service.ListWorkspacesService;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -19,9 +21,16 @@ public class BeanConfiguration {
 
     @Bean
     public WorkspaceRepositoryPort workspaceRepositoryPort(
-            WorkspaceJpaRepository workspaceJpaRepository
+            WorkspaceJpaRepository workspaceJpaRepository,
+            CacheManager cacheManager
     ) {
-        return new JpaWorkspaceRepositoryAdapter(workspaceJpaRepository);
+        WorkspaceRepositoryPort jpaWorkspaceRepositoryAdapter =
+                new JpaWorkspaceRepositoryAdapter(workspaceJpaRepository);
+
+        return new CachedWorkspaceRepositoryAdapter(
+                jpaWorkspaceRepositoryAdapter,
+                cacheManager
+        );
     }
 
     @Bean
