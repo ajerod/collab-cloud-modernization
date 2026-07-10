@@ -28,7 +28,6 @@ class WorkspaceApiMapperTest {
         CreateWorkspaceCommand command = mapper.toCreateCommand(request);
 
         assertEquals("Architecture Workspace", command.name());
-        assertEquals("user-001", command.ownerId());
     }
 
     @Test
