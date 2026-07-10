@@ -1,7 +1,10 @@
 package com.collab.workspace_service.adapter.in.web.resource;
 
 
+import com.collab.workspace_service.adapter.in.web.facade.WorkspaceFacade;
 import com.collab.workspace_service.adapter.in.web.request.CreateWorkspaceRequest;
+import com.collab.workspace_service.adapter.in.web.resource.doc.WorkspaceApiDoc;
+import com.collab.workspace_service.adapter.in.web.response.WorkspaceListResponse;
 import com.collab.workspace_service.adapter.in.web.response.WorkspaceResponse;
 import com.collab.workspace_service.application.port.in.CreateWorkspaceUseCase;
 import com.collab.workspace_service.application.port.in.CreateWorkspaceCommand;
@@ -15,30 +18,44 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/workspaces")
-public class WorkspaceResource {
+public class WorkspaceResource implements WorkspaceApiDoc {
 
-    private final CreateWorkspaceUseCase createWorkspaceUseCase;
+    private final WorkspaceFacade workspaceFacade;
 
-    public WorkspaceResource(CreateWorkspaceUseCase createWorkspaceUseCase) {
-        this.createWorkspaceUseCase = createWorkspaceUseCase;
+    public WorkspaceResource(WorkspaceFacade workspaceFacade) {
+        this.workspaceFacade = workspaceFacade;
     }
 
+    @Override
     @PostMapping
     public ResponseEntity<WorkspaceResponse> createWorkspace(
-            @Valid @RequestBody CreateWorkspaceRequest request,
-            @AuthenticationPrincipal Jwt jwt
+            @Valid @RequestBody CreateWorkspaceRequest request
     ) {
-        String ownerId = jwt.getSubject();
-
-        CreateWorkspaceCommand command = new CreateWorkspaceCommand(
-                request.name(),
-                ownerId
-        );
-
-        Workspace workspace = createWorkspaceUseCase.createWorkspace(command);
+        WorkspaceResponse response = workspaceFacade.createWorkspace(request);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(WorkspaceResponse.from(workspace));
+                .body(response);
+    }
+
+    @Override
+    @GetMapping("/{workspaceId}")
+    public ResponseEntity<WorkspaceResponse> getWorkspace(
+            @PathVariable String workspaceId
+    ) {
+        WorkspaceResponse response = workspaceFacade.getWorkspace(workspaceId);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    @GetMapping
+    public ResponseEntity<WorkspaceListResponse> listWorkspaces(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        WorkspaceListResponse response = workspaceFacade.listWorkspaces(page, size);
+
+        return ResponseEntity.ok(response);
     }
 }
