@@ -22,8 +22,7 @@ class WorkspaceApiMapperTest {
     @Test
     void shouldMapCreateWorkspaceRequestToCommand() {
         CreateWorkspaceRequest request = new CreateWorkspaceRequest(
-                "Architecture Workspace",
-                "user-001"
+                "Architecture Workspace"
         );
 
         CreateWorkspaceCommand command = mapper.toCreateCommand(request);
