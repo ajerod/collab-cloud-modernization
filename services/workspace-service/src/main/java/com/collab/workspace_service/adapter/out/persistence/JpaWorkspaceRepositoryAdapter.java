@@ -58,4 +58,25 @@ public class JpaWorkspaceRepositoryAdapter implements WorkspaceRepositoryPort {
                 result.getTotalPages()
         );
     }
+
+    @Override
+    public PagedResult<Workspace> findAllByOwnerId(String ownerId, int page, int size) {
+        Objects.requireNonNull(ownerId, "Owner id must not be null");
+
+        Page<WorkspaceJpaEntity> result = workspaceJpaRepository.findByOwnerId(
+                ownerId,
+                PageRequest.of(page, size)
+        );
+
+        return new PagedResult<>(
+                result.getContent().stream()
+                        .map(WorkspacePersistenceMapper::toDomain)
+                        .toList(),
+                result.getNumber(),
+                result.getSize(),
+                result.getTotalElements(),
+                result.getTotalPages()
+        );
+    }
+
 }

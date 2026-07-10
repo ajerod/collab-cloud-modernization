@@ -62,4 +62,5 @@ public class BeanConfiguration {
     ) {
         return new ListWorkspacesService(workspaceRepositoryPort);
     }
+
 }

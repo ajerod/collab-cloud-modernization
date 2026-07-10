@@ -79,6 +79,11 @@ public class CachedWorkspaceRepositoryAdapter implements WorkspaceRepositoryPort
         return delegate.findAll(page, size);
     }
 
+    @Override
+    public PagedResult<Workspace> findAllByOwnerId(String ownerId, int page, int size) {
+        return delegate.findAllByOwnerId(ownerId, page, size);
+    }
+
     private Optional<Workspace> findInCache(WorkspaceId workspaceId) {
         String key = cacheKey(workspaceId);
 

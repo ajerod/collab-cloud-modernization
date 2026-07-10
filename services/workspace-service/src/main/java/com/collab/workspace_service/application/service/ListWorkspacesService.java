@@ -5,10 +5,14 @@ import com.collab.workspace_service.application.port.in.ListWorkspacesQuery;
 import com.collab.workspace_service.application.port.in.ListWorkspacesUseCase;
 import com.collab.workspace_service.application.port.out.WorkspaceRepositoryPort;
 import com.collab.workspace_service.domain.model.Workspace;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
 public class ListWorkspacesService implements ListWorkspacesUseCase {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ListWorkspacesService.class);
 
     private static final int MAX_PAGE_SIZE = 100;
 
@@ -25,12 +29,29 @@ public class ListWorkspacesService implements ListWorkspacesUseCase {
     public PagedResult<Workspace> listWorkspaces(ListWorkspacesQuery query) {
         Objects.requireNonNull(query, "List workspaces query must not be null");
 
+        String authenticatedUserId = validateAuthenticatedUserId(query.authenticatedUserId());
         validatePagination(query.page(), query.size());
 
-        return workspaceRepositoryPort.findAll(
+        LOGGER.info(
+                "Listing workspaces: authenticatedUserId={}, page={}, size={}",
+                authenticatedUserId,
                 query.page(),
                 query.size()
         );
+
+        return workspaceRepositoryPort.findAllByOwnerId(
+                authenticatedUserId,
+                query.page(),
+                query.size()
+        );
+    }
+
+    private String validateAuthenticatedUserId(String authenticatedUserId) {
+        if (authenticatedUserId == null || authenticatedUserId.isBlank()) {
+            throw new IllegalArgumentException("Authenticated user id must not be blank");
+        }
+
+        return authenticatedUserId.trim();
     }
 
     private void validatePagination(int page, int size) {

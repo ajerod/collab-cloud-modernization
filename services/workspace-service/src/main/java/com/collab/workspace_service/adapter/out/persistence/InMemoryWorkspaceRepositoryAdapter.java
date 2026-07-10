@@ -49,4 +49,9 @@ public class InMemoryWorkspaceRepositoryAdapter implements WorkspaceRepositoryPo
                 totalPages
         );
     }
+
+    @Override
+    public PagedResult<Workspace> findAllByOwnerId(String ownerId, int page, int size) {
+        return null;
+    }
 }

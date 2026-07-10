@@ -158,8 +158,24 @@ class GetWorkspaceServiceTest {
 
         @Override
         public PagedResult<Workspace> findAll(int page, int size) {
-            return null;
+            return new PagedResult<>(
+                    List.of(),
+                    page,
+                    size,
+                    0,
+                    0
+            );
         }
 
+        @Override
+        public PagedResult<Workspace> findAllByOwnerId(String ownerId, int page, int size) {
+            return new PagedResult<>(
+                    List.of(),
+                    page,
+                    size,
+                    0,
+                    0
+            );
+        }
     }
 }

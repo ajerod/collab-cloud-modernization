@@ -13,4 +13,6 @@ public interface WorkspaceRepositoryPort {
     Optional<Workspace> findById(WorkspaceId workspaceId);
 
     PagedResult<Workspace> findAll(int page, int size);
+
+    PagedResult<Workspace> findAllByOwnerId(String ownerId, int page, int size);
 }
