@@ -56,22 +56,6 @@ public class Workspace {
         return createdAt;
     }
 
-    private static String validateName(String name) {
-        if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("Workspace name must not be blank");
-        }
-
-        return name.trim();
-    }
-
-    private static String validateOwnerId(String ownerId) {
-        if (ownerId == null || ownerId.isBlank()) {
-            throw new IllegalArgumentException("Owner id must not be blank");
-        }
-
-        return ownerId.trim();
-    }
-
     public WorkspaceId getId() {
         return id;
     }
@@ -86,5 +70,21 @@ public class Workspace {
 
     public Instant getCreatedAt() {
         return createdAt;
+    }
+
+    private static String validateName(String name) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Workspace name must not be blank");
+        }
+
+        return name.trim();
+    }
+
+    private static String validateOwnerId(String ownerId) {
+        if (ownerId == null || ownerId.isBlank()) {
+            throw new IllegalArgumentException("Owner id must not be blank");
+        }
+
+        return ownerId.trim();
     }
 }

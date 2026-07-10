@@ -5,8 +5,11 @@ import com.collab.workspace_service.adapter.in.web.request.CreateWorkspaceReques
 import com.collab.workspace_service.adapter.in.web.response.WorkspaceListResponse;
 import com.collab.workspace_service.adapter.in.web.response.WorkspaceResponse;
 import com.collab.workspace_service.application.model.PagedResult;
+import com.collab.workspace_service.application.port.in.CreateWorkspaceCommand;
 import com.collab.workspace_service.application.port.in.CreateWorkspaceUseCase;
+import com.collab.workspace_service.application.port.in.GetWorkspaceQuery;
 import com.collab.workspace_service.application.port.in.GetWorkspaceUseCase;
+import com.collab.workspace_service.application.port.in.ListWorkspacesQuery;
 import com.collab.workspace_service.application.port.in.ListWorkspacesUseCase;
 import com.collab.workspace_service.domain.model.Workspace;
 import org.springframework.stereotype.Component;
@@ -45,26 +48,46 @@ public class WorkspaceFacade {
         );
     }
 
-    public WorkspaceResponse createWorkspace(CreateWorkspaceRequest request) {
-        Workspace workspace = createWorkspaceUseCase.createWorkspace(
-                workspaceApiMapper.toCreateCommand(request)
+    public WorkspaceResponse createWorkspace(
+            CreateWorkspaceRequest request,
+            String authenticatedUserId
+    ) {
+        CreateWorkspaceCommand command = workspaceApiMapper.toCommand(
+                request,
+                authenticatedUserId
         );
+
+        Workspace workspace = createWorkspaceUseCase.createWorkspace(command);
 
         return workspaceApiMapper.toResponse(workspace);
     }
 
-    public WorkspaceResponse getWorkspace(String workspaceId) {
-        Workspace workspace = getWorkspaceUseCase.getWorkspace(
-                workspaceApiMapper.toGetQuery(workspaceId)
+    public WorkspaceResponse getWorkspace(
+            String workspaceId,
+            String authenticatedUserId
+    ) {
+        GetWorkspaceQuery query = workspaceApiMapper.toGetQuery(
+                workspaceId,
+                authenticatedUserId
         );
+
+        Workspace workspace = getWorkspaceUseCase.getWorkspace(query);
 
         return workspaceApiMapper.toResponse(workspace);
     }
 
-    public WorkspaceListResponse listWorkspaces(int page, int size) {
-        PagedResult<Workspace> result = listWorkspacesUseCase.listWorkspaces(
-                workspaceApiMapper.toListQuery(page, size)
+    public WorkspaceListResponse listWorkspaces(
+            String authenticatedUserId,
+            int page,
+            int size
+    ) {
+        ListWorkspacesQuery query = workspaceApiMapper.toListQuery(
+                authenticatedUserId,
+                page,
+                size
         );
+
+        PagedResult<Workspace> result = listWorkspacesUseCase.listWorkspaces(query);
 
         return workspaceApiMapper.toListResponse(result);
     }

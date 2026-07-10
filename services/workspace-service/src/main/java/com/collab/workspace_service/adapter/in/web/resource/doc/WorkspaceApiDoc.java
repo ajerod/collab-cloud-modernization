@@ -7,12 +7,16 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.jwt.Jwt;
 
 @Tag(
         name = "Workspaces",
@@ -22,7 +26,7 @@ public interface WorkspaceApiDoc {
 
     @Operation(
             summary = "Create a workspace",
-            description = "Creates a new workspace for a given owner."
+            description = "Creates a new workspace for the authenticated user."
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -34,20 +38,28 @@ public interface WorkspaceApiDoc {
                     responseCode = "400",
                     description = "Invalid request payload",
                     content = @Content(schema = @Schema(implementation = ProblemDetail.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Missing or invalid access token",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))
             )
     })
     ResponseEntity<WorkspaceResponse> createWorkspace(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            @RequestBody(
                     required = true,
-                    description = "Workspace creation payload",
+                    description = "Workspace creation payload. The owner is resolved from the authenticated JWT.",
                     content = @Content(schema = @Schema(implementation = CreateWorkspaceRequest.class))
             )
-            @Valid CreateWorkspaceRequest request
+            @Valid CreateWorkspaceRequest request,
+
+            @Parameter(hidden = true)
+            Jwt jwt
     );
 
     @Operation(
             summary = "Get a workspace by id",
-            description = "Retrieves an existing workspace using its unique identifier."
+            description = "Retrieves an existing workspace using its unique identifier. The workspace must belong to the authenticated user."
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -61,6 +73,16 @@ public interface WorkspaceApiDoc {
                     content = @Content(schema = @Schema(implementation = ProblemDetail.class))
             ),
             @ApiResponse(
+                    responseCode = "401",
+                    description = "Missing or invalid access token",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Authenticated user is not allowed to access this workspace",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))
+            ),
+            @ApiResponse(
                     responseCode = "404",
                     description = "Workspace not found",
                     content = @Content(schema = @Schema(implementation = ProblemDetail.class))
@@ -71,12 +93,15 @@ public interface WorkspaceApiDoc {
                     description = "Workspace unique identifier",
                     example = "00000000-0000-0000-0000-000000000000"
             )
-            String workspaceId
+            String workspaceId,
+
+            @Parameter(hidden = true)
+            Jwt jwt
     );
 
     @Operation(
             summary = "List workspaces",
-            description = "Lists workspaces with simple pagination."
+            description = "Lists workspaces owned by the authenticated user with simple pagination."
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -88,6 +113,11 @@ public interface WorkspaceApiDoc {
                     responseCode = "400",
                     description = "Invalid pagination parameters",
                     content = @Content(schema = @Schema(implementation = ProblemDetail.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Missing or invalid access token",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))
             )
     })
     ResponseEntity<WorkspaceListResponse> listWorkspaces(
@@ -95,12 +125,18 @@ public interface WorkspaceApiDoc {
                     description = "Page index, starting at 0",
                     example = "0"
             )
+            @Min(0)
             int page,
 
             @Parameter(
                     description = "Page size",
                     example = "20"
             )
-            int size
+            @Min(1)
+            @Max(100)
+            int size,
+
+            @Parameter(hidden = true)
+            Jwt jwt
     );
 }

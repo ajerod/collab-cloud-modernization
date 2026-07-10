@@ -1,10 +1,13 @@
 package com.collab.workspace_service.adapter.in.web;
 
+import com.collab.workspace_service.application.exception.WorkspaceAccessDeniedException;
 import com.collab.workspace_service.application.exception.WorkspaceNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -62,5 +65,19 @@ public class ApiExceptionHandler {
         problemDetail.setType(URI.create("https://collab-cloud-modernization/errors/internal-server-error"));
 
         return problemDetail;
+    }
+
+    @ExceptionHandler(WorkspaceAccessDeniedException.class)
+    public ResponseEntity<ProblemDetail> handleWorkspaceAccessDeniedException(
+            WorkspaceAccessDeniedException exception,
+            HttpServletRequest request
+    ) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+        problemDetail.setTitle("Workspace access denied");
+        problemDetail.setDetail(exception.getMessage());
+        problemDetail.setType(URI.create("https://collab-cloud-modernization/errors/workspace-access-denied"));
+        problemDetail.setInstance(URI.create(request.getRequestURI()));
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(problemDetail);
     }
 }

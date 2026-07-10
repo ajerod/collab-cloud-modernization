@@ -8,31 +8,69 @@ import com.collab.workspace_service.application.port.in.CreateWorkspaceCommand;
 import com.collab.workspace_service.application.port.in.GetWorkspaceQuery;
 import com.collab.workspace_service.application.port.in.ListWorkspacesQuery;
 import com.collab.workspace_service.domain.model.Workspace;
-import com.collab.workspace_service.domain.model.WorkspaceId;
-import org.mapstruct.Mapper;
+import org.springframework.stereotype.Component;
 
-@Mapper(componentModel = "spring")
-public interface WorkspaceApiMapper {
+import java.util.Objects;
 
-    CreateWorkspaceCommand toCreateCommand(CreateWorkspaceRequest request);
+@Component
+public class WorkspaceApiMapper {
 
-    WorkspaceResponse toResponse(Workspace workspace);
+    public CreateWorkspaceCommand toCommand(
+            CreateWorkspaceRequest request,
+            String authenticatedUserId
+    ) {
+        Objects.requireNonNull(request, "Create workspace request must not be null");
 
-    WorkspaceListResponse toListResponse(PagedResult<Workspace> pagedResult);
-
-    default GetWorkspaceQuery toGetQuery(String workspaceId) {
-        return new GetWorkspaceQuery(workspaceId);
+        return new CreateWorkspaceCommand(
+                request.name(),
+                authenticatedUserId
+        );
     }
 
-    default ListWorkspacesQuery toListQuery(int page, int size) {
-        return new ListWorkspacesQuery(page, size);
+    public GetWorkspaceQuery toGetQuery(
+            String workspaceId,
+            String authenticatedUserId
+    ) {
+        return new GetWorkspaceQuery(
+                workspaceId,
+                authenticatedUserId
+        );
     }
 
-    default String map(WorkspaceId workspaceId) {
-        if (workspaceId == null) {
-            return null;
-        }
+    public ListWorkspacesQuery toListQuery(
+            String authenticatedUserId,
+            int page,
+            int size
+    ) {
+        return new ListWorkspacesQuery(
+                authenticatedUserId,
+                page,
+                size
+        );
+    }
 
-        return workspaceId.toString();
+    public WorkspaceResponse toResponse(Workspace workspace) {
+        Objects.requireNonNull(workspace, "Workspace must not be null");
+
+        return new WorkspaceResponse(
+                workspace.id().toString(),
+                workspace.name(),
+                workspace.ownerId(),
+                workspace.createdAt()
+        );
+    }
+
+    public WorkspaceListResponse toListResponse(PagedResult<Workspace> pagedResult) {
+        Objects.requireNonNull(pagedResult, "Paged result must not be null");
+
+        return new WorkspaceListResponse(
+                pagedResult.items().stream()
+                        .map(this::toResponse)
+                        .toList(),
+                pagedResult.page(),
+                pagedResult.size(),
+                pagedResult.totalElements(),
+                pagedResult.totalPages()
+        );
     }
 }

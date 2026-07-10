@@ -1,5 +1,6 @@
 package com.collab.workspace_service.application.service;
 
+import com.collab.workspace_service.application.exception.WorkspaceAccessDeniedException;
 import com.collab.workspace_service.application.exception.WorkspaceNotFoundException;
 import com.collab.workspace_service.application.model.PagedResult;
 import com.collab.workspace_service.application.port.in.GetWorkspaceQuery;
@@ -17,36 +18,81 @@ import static org.junit.jupiter.api.Assertions.*;
 class GetWorkspaceServiceTest {
 
     @Test
-    void shouldGetWorkspaceWhenItExists() {
-        Workspace workspace = Workspace.create("Architecture Workspace", "user-001");
-        FakeWorkspaceRepositoryPort workspaceRepositoryPort = new FakeWorkspaceRepositoryPort(workspace);
+    void shouldGetWorkspaceWhenItExistsAndBelongsToAuthenticatedUser() {
+        Workspace workspace = Workspace.create(
+                "Architecture Workspace",
+                "user-001"
+        );
+
+        FakeWorkspaceRepositoryPort workspaceRepositoryPort =
+                new FakeWorkspaceRepositoryPort(workspace);
 
         GetWorkspaceService service = new GetWorkspaceService(workspaceRepositoryPort);
 
         Workspace result = service.getWorkspace(
-                new GetWorkspaceQuery(workspace.id().toString())
+                new GetWorkspaceQuery(
+                        workspace.id().toString(),
+                        "user-001"
+                )
         );
 
-        assertEquals(workspace, result);
+        assertSame(workspace, result);
         assertTrue(workspaceRepositoryPort.findByIdCalled);
     }
 
     @Test
     void shouldThrowExceptionWhenWorkspaceDoesNotExist() {
-        FakeWorkspaceRepositoryPort workspaceRepositoryPort = new FakeWorkspaceRepositoryPort(null);
+        FakeWorkspaceRepositoryPort workspaceRepositoryPort =
+                new FakeWorkspaceRepositoryPort(null);
+
         GetWorkspaceService service = new GetWorkspaceService(workspaceRepositoryPort);
 
         String missingWorkspaceId = UUID.randomUUID().toString();
 
         WorkspaceNotFoundException exception = assertThrows(
                 WorkspaceNotFoundException.class,
-                () -> service.getWorkspace(new GetWorkspaceQuery(missingWorkspaceId))
+                () -> service.getWorkspace(
+                        new GetWorkspaceQuery(
+                                missingWorkspaceId,
+                                "user-001"
+                        )
+                )
         );
 
         assertEquals(
                 "Workspace not found with id: " + missingWorkspaceId,
                 exception.getMessage()
         );
+        assertTrue(workspaceRepositoryPort.findByIdCalled);
+    }
+
+    @Test
+    void shouldThrowAccessDeniedWhenWorkspaceDoesNotBelongToAuthenticatedUser() {
+        Workspace workspace = Workspace.create(
+                "Architecture Workspace",
+                "owner-001"
+        );
+
+        FakeWorkspaceRepositoryPort workspaceRepositoryPort =
+                new FakeWorkspaceRepositoryPort(workspace);
+
+        GetWorkspaceService service = new GetWorkspaceService(workspaceRepositoryPort);
+
+        WorkspaceAccessDeniedException exception = assertThrows(
+                WorkspaceAccessDeniedException.class,
+                () -> service.getWorkspace(
+                        new GetWorkspaceQuery(
+                                workspace.id().toString(),
+                                "user-002"
+                        )
+                )
+        );
+
+        assertEquals(
+                "Access denied to workspace: " + workspace.id(),
+                exception.getMessage()
+        );
+        assertTrue(workspaceRepositoryPort.findByIdCalled);
     }
 
     @Test
@@ -71,7 +117,12 @@ class GetWorkspaceServiceTest {
 
         assertThrows(
                 IllegalArgumentException.class,
-                () -> service.getWorkspace(new GetWorkspaceQuery("not-a-uuid"))
+                () -> service.getWorkspace(
+                        new GetWorkspaceQuery(
+                                "not-a-uuid",
+                                "user-001"
+                        )
+                )
         );
     }
 
@@ -107,13 +158,8 @@ class GetWorkspaceServiceTest {
 
         @Override
         public PagedResult<Workspace> findAll(int page, int size) {
-            return new PagedResult<>(
-                    List.of(),
-                    page,
-                    size,
-                    0,
-                    0
-            );
+            return null;
         }
+
     }
 }

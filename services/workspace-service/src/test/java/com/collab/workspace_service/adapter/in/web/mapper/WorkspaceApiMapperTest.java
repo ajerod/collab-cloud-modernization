@@ -9,15 +9,14 @@ import com.collab.workspace_service.application.port.in.GetWorkspaceQuery;
 import com.collab.workspace_service.application.port.in.ListWorkspacesQuery;
 import com.collab.workspace_service.domain.model.Workspace;
 import org.junit.jupiter.api.Test;
-import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class WorkspaceApiMapperTest {
 
-    private final WorkspaceApiMapper mapper = Mappers.getMapper(WorkspaceApiMapper.class);
+    private final WorkspaceApiMapper mapper = new WorkspaceApiMapper();
 
     @Test
     void shouldMapCreateWorkspaceRequestToCommand() {
@@ -25,9 +24,13 @@ class WorkspaceApiMapperTest {
                 "Architecture Workspace"
         );
 
-        CreateWorkspaceCommand command = mapper.toCreateCommand(request);
+        CreateWorkspaceCommand command = mapper.toCommand(
+                request,
+                "user-001"
+        );
 
         assertEquals("Architecture Workspace", command.name());
+        assertEquals("user-001", command.ownerId());
     }
 
     @Test
@@ -66,26 +69,37 @@ class WorkspaceApiMapperTest {
         assertEquals(20, response.size());
         assertEquals(1, response.totalElements());
         assertEquals(1, response.totalPages());
+
         assertEquals(1, response.items().size());
         assertEquals(workspace.id().toString(), response.items().get(0).id());
+        assertEquals("Architecture Workspace", response.items().get(0).name());
+        assertEquals("user-001", response.items().get(0).ownerId());
+        assertEquals(workspace.createdAt(), response.items().get(0).createdAt());
     }
 
     @Test
     void shouldBuildGetWorkspaceQuery() {
         GetWorkspaceQuery query = mapper.toGetQuery(
-                "00000000-0000-0000-0000-000000000000"
+                "00000000-0000-0000-0000-000000000000",
+                "user-001"
         );
 
         assertEquals(
                 "00000000-0000-0000-0000-000000000000",
                 query.workspaceId()
         );
+        assertEquals("user-001", query.authenticatedUserId());
     }
 
     @Test
     void shouldBuildListWorkspacesQuery() {
-        ListWorkspacesQuery query = mapper.toListQuery(1, 10);
+        ListWorkspacesQuery query = mapper.toListQuery(
+                "user-001",
+                1,
+                10
+        );
 
+        assertEquals("user-001", query.authenticatedUserId());
         assertEquals(1, query.page());
         assertEquals(10, query.size());
     }

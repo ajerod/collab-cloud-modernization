@@ -1,5 +1,6 @@
 package com.collab.workspace_service.application.service;
 
+import com.collab.workspace_service.application.exception.WorkspaceAccessDeniedException;
 import com.collab.workspace_service.application.exception.WorkspaceNotFoundException;
 import com.collab.workspace_service.application.port.in.GetWorkspaceQuery;
 import com.collab.workspace_service.application.port.in.GetWorkspaceUseCase;
@@ -30,16 +31,31 @@ public class GetWorkspaceService implements GetWorkspaceUseCase {
 
         WorkspaceId workspaceId = WorkspaceId.from(query.workspaceId());
 
-        LOGGER.info("Retrieving workspace: workspaceId={}", workspaceId);
+        LOGGER.info(
+                "Retrieving workspace: workspaceId={}, authenticatedUserId={}",
+                workspaceId,
+                query.authenticatedUserId()
+        );
 
-        return workspaceRepositoryPort.findById(workspaceId)
-                .map(workspace -> {
-                    LOGGER.info("Workspace retrieved successfully: workspaceId={}", workspace.id());
-                    return workspace;
-                })
+        Workspace workspace = workspaceRepositoryPort.findById(workspaceId)
                 .orElseThrow(() -> {
                     LOGGER.info("Workspace not found: workspaceId={}", workspaceId);
                     return new WorkspaceNotFoundException(workspaceId.toString());
                 });
+
+        if (!workspace.ownerId().equals(query.authenticatedUserId())) {
+            LOGGER.warn(
+                    "Workspace access denied: workspaceId={}, ownerId={}, authenticatedUserId={}",
+                    workspace.id(),
+                    workspace.ownerId(),
+                    query.authenticatedUserId()
+            );
+
+            throw new WorkspaceAccessDeniedException(workspace.id().toString());
+        }
+
+        LOGGER.info("Workspace retrieved successfully: workspaceId={}", workspace.id());
+
+        return workspace;
     }
 }
