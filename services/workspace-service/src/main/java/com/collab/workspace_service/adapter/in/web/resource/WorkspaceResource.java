@@ -1,4 +1,5 @@
-package com.collab.workspace_service.adapter.in.web;
+package com.collab.workspace_service.adapter.in.web.resource;
+
 
 import com.collab.workspace_service.adapter.in.web.request.CreateWorkspaceRequest;
 import com.collab.workspace_service.adapter.in.web.response.WorkspaceResponse;
